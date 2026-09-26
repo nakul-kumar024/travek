@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings  Booking[]
+  hotels    Hotel[]   // if user lists properties
+}
+
+model Hotel {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  location    String
+  price       Int
+  rating      Float    @default(0)
+  images      String[] // array of image URLs
+  amenities   String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  ownerId     String?
+  owner       User?    @relation(fields: [ownerId], references: [id])
+
+  bookings    Booking[]
+}
+
+model Booking {
+  id         String   @id @default(cuid())
+  checkIn    DateTime
+  checkOut   DateTime
+  guests     Int
+  totalPrice Int
+  status     String   @default("confirmed") // confirmed, cancelled
+  createdAt  DateTime @default(now())
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+
+  hotelId    String
+  hotel      Hotel    @relation(fields: [hotelId], references: [id])
+}
